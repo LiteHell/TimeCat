@@ -21,7 +21,7 @@ namespace TimeCat.Tests
         {
             totalTimes = new Dictionary<int, int>();
             timeRanges = new Dictionary<int, List<TimestampRange>>();
-            TimeSpan unitSpan = new TimeSpan(0, 0, 0, 10);
+            TimeSpan unitSpan = new TimeSpan(0, 0, 0, 1);
             Random rnd = new Random();
 
             int applicationCount = 30;
@@ -44,10 +44,10 @@ namespace TimeCat.Tests
                 now += unitSpan;
             }
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 100; i++)
             {
                 int application = rnd.Next(applicationCount) + 1;
-                int active1 = rnd.Next(100);
+                int active1 = rnd.Next(180), idle = rnd.Next(60);
 
                 await _db.InsertAsync(new Activity() { Id = logIndex++, ApplicationId = application, Action = ActionType.Focus, Time = now });
                 now += unitSpan;
@@ -60,7 +60,7 @@ namespace TimeCat.Tests
                 }
                 await _db.InsertAsync(new Activity() { Id = logIndex++, ApplicationId = application, Action = ActionType.Idle, Time = now });
                 DateTimeOffset activeEnds = now;
-                now += unitSpan;
+                now += unitSpan * idle;
                 await _db.InsertAsync(new Activity() { Id = logIndex++, ApplicationId = application, Action = ActionType.Blur, Time = now });
                 now += unitSpan;
 
