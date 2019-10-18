@@ -68,8 +68,8 @@ namespace TimeCat.Core
 
             _server.Start();
             Log.Information("Initializing Inmemory Database...");
-            Database.TimeCatDB.Instance.Initialize("").Wait();
-            Log.Information("Creating Dummies... This would take 2~3 minutes.");
+            Database.TimeCatDB.Instance.Initialize(System.IO.Path.GetTempFileName()).Wait();
+            Log.Information("Creating Dummies... This would take less than a minute.");
             Dummies.Create().Wait();
             Log.Information("Listening on {Host}:{Port}", host, port);
         }

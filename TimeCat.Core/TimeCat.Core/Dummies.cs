@@ -25,13 +25,15 @@ namespace TimeCat.Core
             Random rnd = new Random();
 
             int applicationCount = 30;
-            int categoriesCount = 10;
+            int categoriesCount = 5, subCategoriesCount = 5;
 
             // 카테고리와 어플리케이션 무작위 생성
             for(int i = 0; i < categoriesCount; i++)
-                await _db.InsertAsync(new Category() { CategoryId = i + 1, Name = $"Awesome Category {i}", Color = Color.Aqua });
+                await _db.InsertAsync(new Category() { Id = i + 1, Name = $"Awesome Category {i}", Color = Color.Aqua});
+            for (int i = 0; i < subCategoriesCount; i++)
+                await _db.InsertAsync(new Category() { Id = i + categoriesCount + 1, CategoryId = rnd.Next(categoriesCount) + 1 ,Name = $"Awesome Category {i}", Color = Color.Aqua});
 
-            for(int i = 0; i < applicationCount; i++)
+            for (int i = 0; i < applicationCount; i++)
                 await _db.InsertAsync(new Application() { CategoryId = rnd.Next(categoriesCount) + 1, FullName = $"C:\\TestApp{i}.exe", Id = i + 1, IsProductivity = true, Name = $"Test Application {i}", Icon = "chrome", Version = "1.0" });
             
             int logIndex = 0;
@@ -44,24 +46,25 @@ namespace TimeCat.Core
                 now += unitSpan;
             }
 
-            for (int i = 0; i < 100; i++)
+            List<Activity> activities = new List<Activity>();
+            for (int i = 0; i < 180; i++)
             {
                 int application = rnd.Next(applicationCount) + 1;
-                int active1 = rnd.Next(180), idle = rnd.Next(60);
+                int active1 = rnd.Next(60 * 60 * 3), idle = rnd.Next(60 * 60 * 1);
 
-                await _db.InsertAsync(new Activity() { Id = logIndex++, ApplicationId = application, Action = ActionType.Focus, Time = now });
+                activities.Add(new Activity() { Id = logIndex++, ApplicationId = application, Action = ActionType.Focus, Time = now });
                 now += unitSpan;
 
                 DateTimeOffset activeStarts = now;
                 for (int j = 0; j < active1; j++)
                 {
-                    await _db.InsertAsync(new Activity() { Id = logIndex++, ApplicationId = application, Action = ActionType.Active, Time = now });
+                    activities.Add(new Activity() { Id = logIndex++, ApplicationId = application, Action = ActionType.Active, Time = now });
                     now += unitSpan;
                 }
-                await _db.InsertAsync(new Activity() { Id = logIndex++, ApplicationId = application, Action = ActionType.Idle, Time = now });
+                activities.Add(new Activity() { Id = logIndex++, ApplicationId = application, Action = ActionType.Idle, Time = now });
                 DateTimeOffset activeEnds = now;
                 now += unitSpan * idle;
-                await _db.InsertAsync(new Activity() { Id = logIndex++, ApplicationId = application, Action = ActionType.Blur, Time = now });
+                activities.Add(new Activity() { Id = logIndex++, ApplicationId = application, Action = ActionType.Blur, Time = now });
                 now += unitSpan;
 
                 if (!totalTimes.ContainsKey(application))
@@ -73,6 +76,8 @@ namespace TimeCat.Core
                 timeRanges[application].Add(new TimestampRange(){Start = Timestamp.FromDateTimeOffset(activeStarts), End = Timestamp.FromDateTimeOffset(activeEnds)});
                 totalTimes[application] += active1 == 0 ? 0 : (active1 * unitSpan.Seconds);
             }
+
+            await _db.InsertRangeAsync(activities);
 
             // 모든 Application 다 Close
             for (int i = 1; i <= applicationCount; i++)
