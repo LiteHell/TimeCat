@@ -29,12 +29,12 @@ namespace TimeCat.Core
 
             // 카테고리와 어플리케이션 무작위 생성
             for(int i = 0; i < categoriesCount; i++)
-                await _db.InsertAsync(new Category() { Id = i + 1, Name = $"Awesome Category {i}", Color = Color.Aqua});
+                await _db.InsertAsync(new Category() { Id = i + 1, Name = $"Awesome Category {i}", Color = Color.Blue});
             for (int i = 0; i < subCategoriesCount; i++)
                 await _db.InsertAsync(new Category() { Id = i + categoriesCount + 1, CategoryId = rnd.Next(categoriesCount) + 1 ,Name = $"Awesome Category {i}", Color = Color.Aqua});
 
             for (int i = 0; i < applicationCount; i++)
-                await _db.InsertAsync(new Application() { CategoryId = rnd.Next(categoriesCount) + 1, FullName = $"C:\\TestApp{i}.exe", Id = i + 1, IsProductivity = true, Name = $"Test Application {i}", Icon = "chrome", Version = "1.0" });
+                await _db.InsertAsync(new Application() { CategoryId = rnd.Next(categoriesCount) + 1, FullName = $"C:\\TestApp{i}.exe", Id = i + 1, IsProductivity = rnd.Next(100) % 2 == 0, Name = $"Test Application {i}", Icon = "chrome", Version = "1.0" });
             
             int logIndex = 0;
             var now = start;
