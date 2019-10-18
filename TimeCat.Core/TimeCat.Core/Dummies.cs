@@ -98,7 +98,7 @@ namespace TimeCat.Core
             TimeCatDB _db = TimeCatDB.Instance;
 
             // insert dummies
-            offsetStart = DateTimeOffset.UtcNow - new TimeSpan(4,0,0,0);
+            offsetStart = DateTimeOffset.UtcNow - new TimeSpan(30,0,0,0);
             await InsertDummies(_db, offsetStart);
         }
         public static Dictionary<int, int> TotalUseTimesPerApplications => totalTimes;
